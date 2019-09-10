@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace csharp
 {
@@ -12,78 +13,102 @@ namespace csharp
 
         public void UpdateQuality()
         {
-            for (var i = 0; i < Items.Count; i++)
+            for (var itemIndex = 0; itemIndex < Items.Count; itemIndex++)
             {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                if (Items[itemIndex].Name == "Aged Brie")
                 {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
+                    EditAgedBrieDetails(itemIndex);
                 }
-                else
+                else if (Items[itemIndex].Name == "Backstage passes to a TAFKAL80ETC concert")
                 {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
+                    EditBackStagePassesDetails(itemIndex);
                 }
-
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                else if (Items[itemIndex].Name.Contains("Conjured"))
                 {
-                    Items[i].SellIn = Items[i].SellIn - 1;
+                    EditConjuredDetails(itemIndex);
                 }
-
-                if (Items[i].SellIn < 0)
+                else if (Items[itemIndex].Name != "Sulfuras, Hand of Ragnaros")
                 {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
+                    EditOtherItemsThatAreNotSulfuras(itemIndex);
                 }
             }
         }
+
+        private void EditAgedBrieDetails(int itemIndex)
+        {
+            IncrementQualityIfNotGreaterThanMax(itemIndex);
+            Items[itemIndex].SellIn--;
+            if (Items[itemIndex].SellIn < 0)
+            {
+                IncrementQualityIfNotGreaterThanMax(itemIndex);
+            }
+        }
+
+        private void EditBackStagePassesDetails(int itemIndex)
+        {
+            BackStagePassesQualityChange(itemIndex);
+            Items[itemIndex].SellIn -= 1;
+            if (Items[itemIndex].SellIn < 0 && Items[itemIndex].Quality > 0)
+            {
+                Items[itemIndex].Quality = 0;
+            }
+        }
+
+        private void BackStagePassesQualityChange(int itemIndex)
+        {
+            IncrementQualityIfNotGreaterThanMax(itemIndex);
+            if (Items[itemIndex].SellIn < 6)
+            {
+                IncrementQualityIfNotGreaterThanMax(itemIndex);
+                IncrementQualityIfNotGreaterThanMax(itemIndex);
+            }
+            else if (Items[itemIndex].SellIn < 11)
+            {
+                IncrementQualityIfNotGreaterThanMax(itemIndex);
+            }
+        }
+
+        private void EditConjuredDetails(int itemIndex)
+        {
+            if (Items[itemIndex].Quality > 1)
+            {
+                DecrementQualityIfNotLessThanMin(itemIndex);
+                DecrementQualityIfNotLessThanMin(itemIndex);
+            }
+            Items[itemIndex].SellIn -= 1;
+            if (Items[itemIndex].SellIn < 0)
+            {
+                DecrementQualityIfNotLessThanMin(itemIndex);
+                DecrementQualityIfNotLessThanMin(itemIndex);
+            }
+        }
+
+        private void EditOtherItemsThatAreNotSulfuras(int itemIndex)
+        {
+            DecrementQualityIfNotLessThanMin(itemIndex);
+
+            Items[itemIndex].SellIn -= 1;
+            if (Items[itemIndex].SellIn < 0)
+            {
+                DecrementQualityIfNotLessThanMin(itemIndex);
+            }
+        }
+
+        private void IncrementQualityIfNotGreaterThanMax(int itemIndex)
+        {
+            if (Items[itemIndex].Quality < 50)
+            {
+                Items[itemIndex].Quality += 1;
+            }
+        }
+
+        private void DecrementQualityIfNotLessThanMin(int itemIndex)
+        {
+            if (Items[itemIndex].Quality > 0)
+            {
+                Items[itemIndex].Quality -= 1;
+            }
+        }
+
     }
 }
