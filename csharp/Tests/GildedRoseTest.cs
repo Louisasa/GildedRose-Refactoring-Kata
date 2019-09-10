@@ -143,43 +143,45 @@ namespace csharp
         [TestCase(-1, 1)]
         [TestCase(0, 1)]
         [TestCase(-1, 0)]
-        public void TestItemNeverLessThanZero(int sellInDate, int initialQuality)
+        public void TestWhenItemNearZeroIsNeverLessThanZero(int sellInDate, int initialQuality)
         {
             IList<Item> Items = new List<Item>
             {
-                new Item { Name = "Aged Brie", SellIn = sellInDate, Quality = initialQuality },
-                new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = sellInDate, Quality = initialQuality },
                 new Item { Name = "Conjured", SellIn = sellInDate, Quality = initialQuality },
                 new Item { Name = "sdjhsdfkj", SellIn = sellInDate, Quality = initialQuality }
             };
             GildedRose app = new GildedRose(Items);
             app.UpdateQuality();
-            Assert.GreaterOrEqual(Items[0].Quality, 0);
-            Assert.GreaterOrEqual(Items[1].Quality, 0);
-            Assert.GreaterOrEqual(Items[2].Quality, 0);
-            Assert.GreaterOrEqual(Items[3].Quality, 0);
+            Assert.AreEqual(0, Items[0].Quality);
+            Assert.AreEqual(0, Items[1].Quality);
         }
 
-        [TestCase(0, 0)]
-        [TestCase(-1, 1)]
-        [TestCase(0, 1)]
-        [TestCase(-1, 0)]
-        public void TestItemNeverGreaterThanFifty(int sellInDate, int initialQuality)
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void TestAgedBrie_OutOfDate_NotMoreThanFifty(int sellInDate)
         {
+            var initialQuality = 50;
             IList<Item> Items = new List<Item>
             {
-                new Item { Name = "Aged Brie", SellIn = sellInDate, Quality = initialQuality },
-                new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = sellInDate, Quality = initialQuality },
-                new Item { Name = "Conjured", SellIn = sellInDate, Quality = initialQuality },
-                new Item { Name = "sdjhsdfkj", SellIn = sellInDate, Quality = initialQuality }
+                new Item { Name = "Aged Brie", SellIn = sellInDate, Quality = initialQuality }
             };
             GildedRose app = new GildedRose(Items);
             app.UpdateQuality();
-            Assert.LessOrEqual(Items[0].Quality, 50);
-            Assert.LessOrEqual(Items[1].Quality, 50);
-            Assert.LessOrEqual(Items[2].Quality, 50);
-            Assert.LessOrEqual(Items[3].Quality, 50);
-            Assert.LessOrEqual(Items[3].Quality, 50);
+            Assert.AreEqual(initialQuality, Items[0].Quality);
+        }
+
+        [TestCase(5)]
+        [TestCase(1)]
+        public void TestBackStagePasses_LessThanFiveDaysBefore_NotMoreThanFifty(int sellInDate)
+        {
+            var initialQuality = 50;
+            IList<Item> Items = new List<Item>
+            {
+                new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = sellInDate, Quality = initialQuality }
+            };
+            GildedRose app = new GildedRose(Items);
+            app.UpdateQuality();
+            Assert.AreEqual(initialQuality, Items[0].Quality);
         }
     }
 }
